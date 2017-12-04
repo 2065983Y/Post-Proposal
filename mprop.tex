@@ -1,0 +1,167 @@
+\documentclass{mprop}
+\usepackage{graphicx}
+
+% alternative font if you prefer
+%\usepackage{times}
+
+% for alternative page numbering use the following package
+% and see documentation for commands
+%\usepackage{fancyheadings}
+
+
+% other potentially useful packages
+%\uspackage{amssymb,amsmath}
+%\usepackage{url}
+%\usepackage{fancyvrb}
+%\usepackage[final]{pdfpages}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Post-Sockets API an alternative of Berkley Sockets}
+\author{Mihail Yanev}
+\date{Date of submission placed here}
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tableofcontents
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}\label{intro}
+
+\qquad Over the past three and a half decades the internet transport has become highly ossified and hard for extension. This is due to a wide deployment of various middleboxes, that in some cases modify the transport information and thus hamper the deployment of new protocols. Another reason for the high level of ossification might be the limited flexibility, provided by of the currently used application programming interface (API). The most widely used such API, that became a standard is the Berkeley Socket API. It has served the network well up until now, but the current demands of the network are starting to encounter the limits of what the API is capable of.
+
+\qquad	For example, many of the end-point devices have multiple interfaces that could be connected to the internet. It would be nice, if the API in use could utilize all of the links across such interfaces. Such functionality is available in the current network via protocol extensions like MPTCP, which try to conceal the multipath feature from the application, for backwards compatibility purposes.
+
+\textbf{//TODO: Cite MPTCP paper
+\linebreak
+//TODO: Give more examples of current limitations that would be supported by post 
+}
+
+
+\qquad In this paper, we provide an implementation of the Post-Sockets API - a new, replacement, abstract programming interface, discussed in \textbf{POST PAPER}. It makes the application aware of the issues identified above and shifts the responsibility for supporting this behaviour up to the developers.
+
+
+\textbf{//TODO: WIP: Paragraph explaining the rest of the paper 
+}
+
+\qquad The rest of this paper is structured as follows - Section 2, Statement of the problem, where the issues identified above (e.g. Multipath TCP) are introduced and critically discussed. Section 3, Literature Survey, where papers, relating to topics, relevant for the problem implementation are discussed in depth. The section is further refined in the following three sub-headings, namely Protocols, APIs and Languages. Following up is Section 4, Proposed approach, which clearly states what are the features from Section 3, that this product has chosen with a provided justification on such choices. And finally this document wraps up with Section 5, Work plan, which states what methodology would be used to complete the items listed in Section 4.
+
+
+example references: \cite{BK08}
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Statement of Problem}
+
+\textit{the issues identified in section 1(e.g. Multipath TCP) are introduced and critically 
+discussed. 
+}
+
+clearly state the problem to be addressed in your forthcoming project. Explain why it would be worthwhile to solve this problem.
+
+
+
+\qquad Multipath TCP is an option that allows for multiple paths within a single source to be used for network communication. One of the benefits that such a functionality has to offer is that multiple paths would improve the usage of the available resources within a network and thus improve the user experience. However, if such functionality is provided and the network could be utilized better might give the chance for many applications to increase the amount of data being transmitted, in cases where this would arguably be necessary and could be replaced with edge computing. Having such applications would result in an increased congestion across the network. Given the pros and cons of multipath support, we believe that the benefits are worth more than the potential downsides, which is why we have decided to introduce a native support for  the MPTCP functionality in Post.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Background Survey}
+
+papers, relating to topics, relevant for the problem implementation are discussed in depth
+
+
+present an overview of relevant previous work including articles, books, and existing software products. Critically evaluate the strengths and weaknesses of the previous work.
+
+\subsection{Protocols}
+
+\textbf{//TODO: consider changing the overview to a sequence of steps displayed as list items.
+}
+
+\qquad Multipath allows for a workstation, to make use of all of its available links. An overview of the protocol in action would be as follows -  after a TCP connection is created between two hosts (end points), if there are any extra paths( sequence of links between the sender and receiver) available, additional subflows ( TCP sessions) are created on the existing session and continue to appear as a single connection to the applications on both ends. MPTCP identifies extra paths, via the addresses available at the hosts. To allow for correct resegmentation of fragments and account for variable delays within a network MPTCP adds connection level sequence numbers. Finally, when an association ( collection of all sessions between two hosts) is no longer needed, subflows are terminated as regular TCP connections, using a trivial four way handshake.
+
+
+\textbf{//TODO: RFC 6824
+}
+
+\textbf{// TODO: Add a paragraph about:}
+\begin{itemize}
+\item MPTCP’s Notable features
+  \begin{itemize}
+  \item Fast Close
+  \item Establishing connection
+  \item Path Management
+  \end{itemize}
+\item MPTCP in the network stack
+\end{itemize}
+ 
+
+
+
+\subsection{APIs}
+
+\qquad \textit{The NEAT API} - NEAT (New, Evolutive API and Transport-Layer Architecture for the Internet) is a library for networked applications, that intends to replace the current socket API. In essence, NEAT advocates for applications to be written in protocol independent way, since the NEAT library will take care of picking the correct protocol for an application to use, thus making it easier to evolve.
+
+\textbf{//TODO: T. Dreibholz, NEAT Sockets API}
+
+\qquad Although similar to Post, one of the main differences between Post and NEAT is that the latter aims to modify the transport only and use the existing infrastructure. On the other side, one of Post's main aims is to re-imagine the network transport and introduce concepts such as - \textit{associations}, \textit{messages} and \textit{message carriers}, seen as \textit{transients}.
+
+\textbf{//TODO: Expand on NEAT, Find a better paper for NEAT}
+
+\subsection{Programming languages}
+
+\qquad This part of the document introduces the programming languages that have been considered for the implementation of Post. For each one, the main strengths and weaknesses are discussed below.
+
+\qquad  \textit{The C programming language} - Originally developed at Bell Labs in 1970s by Dennis Ritchie, C has become a popular choice, serving numerous applications - from embedded devices to super computer modules. Initially, C was used to re-implement the Unix operating system and still hold a great share of the modules in the kernels of many modern OS.
+
+\textbf{TODO: Lawlis, Patricia K. (August 1997). "Guidelines for Choosing a Computer Language: Support for the Visionary Organization"}
+
+\qquad Part of why C has become so popular is due to it’s speed, efficiency and availability on many of the modern machines. Part of the reasons why speed and efficiency are achieved so well in C is that the language gives the programmer the option to manipulate the memory and hardware without a big overhead, which is why C is often referred to as a systems language, also the commands in C are easily mapped to assembly instructions, but C is a higher level programming language, supporting a more recent paradigm and thus it has taken over many modules that used to be done using assembly. However, the freedom that C gives the programmers is often in the core of most of the problems, found within applications, written in the language. Giving full-control over the memory management in the hands of an inexperienced programmer, would lead to many memory related problems, such as - using a block of memory that has been free’d, accessing illegal part of the memory, requesting a block that does not belong to the user space, not returning the no longer used heap space etc.
+
+
+\textbf{//TODO: a concluding sentence for the C programming language
+\linebreak
+//TODO: Consider reducing the size of the paragraph above
+}
+
+
+\qquad \textit{Rust} - Originally began as a side project of  Graydon Hoare in 2006, who worked at Mozilla Research at the time. Mozilla Research, got involved with the project in 2009, once the language was mature enough and was able to demonstrate its core concepts. Mozilla Research describe the language as “safe, concurrent and practical”.
+
+\textbf{TODO: https://www.rust-lang.org/en-US/faq.html}
+
+\qquad It is syntactically similar to C++, but is using a different approach for its memory management and so promises to be much safer than other languages like C and C++. Besides its memory safety features e.g. reference counting, another reason why Rust is considered a safe language is that many of its concepts were inspired from the functional programming, a paradigm, which promotes no-side effects. In such a paradigm, functions have input and output and do not alter any global information that they might have. This removes one of the main problems related to writing a good concurrent code - global data management. This feature is also supported by Rust, which makes writing concurrent code that behaves as expected a trivial task. People have experimented using Rust to write system modules and it has yielded positive results so far. Using Rust as a system language might be a good idea, since it alleviates many of the issues, discussed above, that come with other popular system languages, like C and C++, while still keeping up with the speed offered by such languages. The final result is code that performs as well as if it was written in C, but that is inherently safer.
+
+\textbf{// TODO: Add a few sentences explaining that Rust is still not very mature language}
+
+\qquad \textit{The Go Programming language - }
+
+\textbf{// TODO: Fill in Go information}
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Requirements And Proposed Approach}
+
+state how you propose to solve the software development problem. Show that your proposed approach is feasible, but identify any risks.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagebreak
+\section{Work Plan}
+
+show how you plan to organize your work, identifying intermediate deliverables and dates.
+
+\textbf{
+TODO: Consider moving items from paper below to 3.2 APIs
+\linebreak
+Are the ideas listed in  https://tools.ietf.org/pdf/draft-ietf-mptcp-api-03.pdf a good starting 
+ground for the post MPTCP support
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% it is fine to change the bibliography style if you want
+\pagebreak
+\bibliographystyle{plain}
+\bibliography{mprop}
+\end{document}
